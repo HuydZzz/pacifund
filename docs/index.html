@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PaciFund — Funding Rate Arbitrage on Pacifica</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.7/Recharts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.5/babel.min.js"></script>
+<style>
+:root{--bg-0:#0a0b0e;--bg-1:#12141a;--bg-2:#1a1d26;--bg-3:#242834;--border:#2a2e3a;--border-h:#3a3f50;--text-0:#f0f1f4;--text-1:#b0b4c0;--text-2:#6b7084;--green:#00d68f;--green-dim:#00d68f22;--red:#ff6b6b;--red-dim:#ff6b6b22;--blue:#5b8def;--blue-dim:#5b8def22;--amber:#ffb84d;--amber-dim:#ffb84d22;--purple:#a78bfa;--font:'DM Sans',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body,#root{height:100%;background:var(--bg-0);color:var(--text-0);font-family:var(--font);font-size:14px;-webkit-font-smoothing:antialiased}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--bg-1);position:sticky;top:0;z-index:50}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-m{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--green));display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px;color:#fff}
+.logo-t{font-size:18px;font-weight:600;letter-spacing:-.3px}
+.logo-tag{font-size:11px;color:var(--text-2);background:var(--bg-3);padding:2px 8px;border-radius:4px;margin-left:4px}
+.hdr-r{display:flex;align-items:center;gap:12px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+.mn{padding:20px 24px;max-width:1400px;margin:0 auto}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.c{background:var(--bg-1);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ct{font-size:12px;font-weight:500;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px}
+.sc{padding:14px 18px}
+.sl{font-size:11px;color:var(--text-2);margin-bottom:4px;letter-spacing:.3px}
+.sv{font-size:22px;font-weight:600;font-family:var(--mono);letter-spacing:-.5px}
+.ss{font-size:11px;color:var(--text-2);margin-top:4px}
+.chg{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-family:var(--mono);padding:2px 6px;border-radius:4px;margin-top:5px}
+.chg.up{color:var(--green);background:var(--green-dim)}
+.chg.dn{color:var(--red);background:var(--red-dim)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:9px 12px;color:var(--text-2);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg-2)}
+.mo{font-family:var(--mono);font-size:13px}
+.gr{color:var(--green)}.rd{color:var(--red)}.bl{color:var(--blue)}.am{color:var(--amber)}
+.bg{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.3px}
+.bg-g{background:var(--green-dim);color:var(--green)}.bg-b{background:var(--blue-dim);color:var(--blue)}.bg-a{background:var(--amber-dim);color:var(--amber)}
+.btn{padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg-2);color:var(--text-0);transition:.15s}
+.btn:hover{border-color:var(--border-h);background:var(--bg-3)}
+.btn-p{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-g{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+.btn-g:hover{background:var(--green);color:#000}
+.btn-s{padding:4px 9px;font-size:11px}
+.ep{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:500}
+.ep-p{background:var(--blue-dim);color:var(--blue)}.ep-b{background:var(--amber-dim);color:var(--amber)}
+.cb{width:56px;height:5px;background:var(--bg-3);border-radius:3px;overflow:hidden;display:inline-block}
+.cf{height:100%;border-radius:3px}
+.tbs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:14px}
+.tb{padding:9px 14px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text-2);border-bottom:2px solid transparent;transition:.15s}
+.tb:hover{color:var(--text-1)}.tb.a{color:var(--text-0);border-bottom-color:var(--blue)}
+.tgl{position:relative;width:38px;height:20px;cursor:pointer;display:inline-block}
+.tgl input{opacity:0;width:0;height:0}
+.tgl-t{position:absolute;inset:0;background:var(--bg-3);border-radius:10px;transition:.2s}
+.tgl input:checked+.tgl-t{background:var(--green)}
+.tgl-h{position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:.2s}
+.tgl input:checked~.tgl-h{left:21px}
+@keyframes pls{0%,100%{opacity:1}50%{opacity:.4}}
+.scan{animation:pls 1.5s ease-in-out infinite}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}.mn{padding:14px}.hdr{padding:10px 14px;flex-wrap:wrap;gap:8px}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useCallback,useRef}=React
+const {AreaChart,Area,XAxis,YAxis,CartesianGrid,Tooltip,ResponsiveContainer,BarChart,Bar,Cell}=Recharts
+
+const PAIRS=['BTC-PERP','ETH-PERP','SOL-PERP','ARB-PERP','AVAX-PERP']
+const EXS=['pacifica','binance']
+const r=(a,b)=>Math.random()*(b-a)+a
+
+function mkRates(){
+  return PAIRS.flatMap(p=>EXS.map(e=>{
+    const rate=r(-0.0005,0.0008)
+    return{exchange:e,pair:p,rate,rate_pct:(rate*100).toFixed(4)+'%',annualized_pct:(rate*100*3*365).toFixed(2)+'%',next_funding:new Date(Date.now()+r(1,8)*3600000).toISOString()}
+  }))
+}
+
+function mkSignals(rates){
+  const sigs=[]
+  for(const p of PAIRS){
+    const pr=rates.filter(x=>x.pair===p)
+    const pac=pr.find(x=>x.exchange==='pacifica')
+    const bin=pr.find(x=>x.exchange==='binance')
+    if(!pac||!bin)continue
+    const spread=Math.abs(pac.rate-bin.rate)
+    if(spread<0.00005)continue
+    const lEx=pac.rate<bin.rate?'pacifica':'binance'
+    const sEx=pac.rate<bin.rate?'binance':'pacifica'
+    sigs.push({id:'sig_'+Math.random().toString(36).slice(2,10),pair:p,long_exchange:lEx,short_exchange:sEx,long_rate:Math.min(pac.rate,bin.rate),short_rate:Math.max(pac.rate,bin.rate),spread,spread_pct:(spread*100).toFixed(4)+'%',annualized_yield:(spread*3*365*100).toFixed(2)+'%',estimated_profit_8h:+(10000*spread).toFixed(2),confidence:+r(.45,.95).toFixed(2),sizing:{recommended_size_usd:+r(500,2500).toFixed(0),leverage:[1,1.5,2][Math.floor(r(0,3))]}})
+  }
+  return sigs.sort((a,b)=>b.spread-a.spread)
+}
+
+function mkPnl(d=30){
+  let cp=0,cf=0
+  return Array.from({length:d},(_,i)=>{
+    cp+=r(-15,45);cf+=r(2,20)
+    const dt=new Date();dt.setDate(dt.getDate()-(d-i))
+    return{date:dt.toLocaleDateString('en',{month:'short',day:'numeric'}),pnl:+cp.toFixed(2),funding:+cf.toFixed(2)}
+  })
+}
+
+function mkPos(){
+  return['open','open','open','closed','closed','closed','closed'].map((st,i)=>{
+    const pair=PAIRS[i%PAIRS.length],pnl=+r(-30,80).toFixed(2),sz=+r(800,3000).toFixed(0)
+    return{id:'pos_'+Math.random().toString(36).slice(2,10),pair,long_exchange:Math.random()>.5?'pacifica':'binance',short_exchange:Math.random()>.5?'binance':'pacifica',size_usd:sz,pnl_usd:pnl,funding_collected:+r(1,25).toFixed(2),total_return_pct:((pnl/sz)*100).toFixed(2)+'%',status:st,opened_at:new Date(Date.now()-r(1,20)*86400000).toISOString()}
+  })
+}
+
+const EP=({ex})=><span className={`ep ${ex==='pacifica'?'ep-p':'ep-b'}`}>{ex==='pacifica'?'Pacifica':'Binance'}</span>
+const CB=({v})=>{const c=v>.7?'var(--green)':v>.5?'var(--amber)':'var(--red)';return<div style={{display:'flex',alignItems:'center',gap:6}}><div className="cb"><div className="cf" style={{width:`${v*100}%`,background:c}}/></div><span className="mo" style={{fontSize:11,color:c}}>{(v*100).toFixed(0)}%</span></div>}
+
+const SC=({l,v,s,ch,dir})=><div className="c sc"><div className="sl">{l}</div><div className="sv">{v}</div>{s&&<div className="ss">{s}</div>}{ch&&<div className={`chg ${dir||'up'}`}>{dir==='dn'?'▼':'▲'} {ch}</div>}</div>
+
+function PnlC({d}){
+  return <ResponsiveContainer width="100%" height={240}>
+    <AreaChart data={d} margin={{top:8,right:8,left:-10,bottom:0}}>
+      <defs><linearGradient id="gP" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00d68f" stopOpacity={.3}/><stop offset="100%" stopColor="#00d68f" stopOpacity={0}/></linearGradient><linearGradient id="gF" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#5b8def" stopOpacity={.2}/><stop offset="100%" stopColor="#5b8def" stopOpacity={0}/></linearGradient></defs>
+      <CartesianGrid stroke="#242834" strokeDasharray="3 3"/>
+      <XAxis dataKey="date" tick={{fontSize:11,fill:'#6b7084'}} axisLine={{stroke:'#2a2e3a'}} tickLine={false}/>
+      <YAxis tick={{fontSize:11,fill:'#6b7084'}} axisLine={{stroke:'#2a2e3a'}} tickLine={false} tickFormatter={v=>`$${v}`}/>
+      <Tooltip contentStyle={{background:'#1a1d26',border:'1px solid #2a2e3a',borderRadius:8,fontSize:13}} labelStyle={{color:'#6b7084'}} formatter={(v,n)=>[`$${v.toFixed(2)}`,n==='pnl'?'Total P&L':'Funding']}/>
+      <Area type="monotone" dataKey="funding" stroke="#5b8def" strokeWidth={1.5} fill="url(#gF)"/>
+      <Area type="monotone" dataKey="pnl" stroke="#00d68f" strokeWidth={2} fill="url(#gP)"/>
+    </AreaChart>
+  </ResponsiveContainer>
+}
+
+function SpC({rates}){
+  const g={};rates.forEach(x=>{if(!g[x.pair])g[x.pair]={};g[x.pair][x.exchange]=x})
+  const d=Object.entries(g).map(([p,e])=>{const pc=e.pacifica?.rate||0,bn=e.binance?.rate||0;return{pair:p.replace('-PERP',''),spread:Math.abs(pc-bn)*10000}})
+  return <ResponsiveContainer width="100%" height={180}>
+    <BarChart data={d} margin={{top:8,right:8,left:-10,bottom:0}}>
+      <CartesianGrid stroke="#242834" strokeDasharray="3 3"/>
+      <XAxis dataKey="pair" tick={{fontSize:12,fill:'#6b7084'}} axisLine={{stroke:'#2a2e3a'}} tickLine={false}/>
+      <YAxis tick={{fontSize:11,fill:'#6b7084'}} axisLine={{stroke:'#2a2e3a'}} tickLine={false} tickFormatter={v=>`${v}bp`}/>
+      <Tooltip contentStyle={{background:'#1a1d26',border:'1px solid #2a2e3a',borderRadius:8,fontSize:13}} formatter={v=>[`${v.toFixed(2)} bps`,'Spread']}/>
+      <Bar dataKey="spread" radius={[4,4,0,0]} maxBarSize={44}>{d.map((x,i)=><Cell key={i} fill={x.spread>3?'#00d68f':x.spread>1?'#ffb84d':'#3a3f50'}/>)}</Bar>
+    </BarChart>
+  </ResponsiveContainer>
+}
+
+function RT({rates}){
+  const g={};rates.forEach(x=>{if(!g[x.pair])g[x.pair]={};g[x.pair][x.exchange]=x})
+  return <div className="tw"><table><thead><tr><th>Pair</th><th>Pacifica</th><th>Binance</th><th>Spread</th><th>Annual</th></tr></thead><tbody>
+    {Object.entries(g).map(([p,e])=>{const pc=e.pacifica?.rate||0,bn=e.binance?.rate||0,sp=Math.abs(pc-bn),an=sp*3*365*100
+    return <tr key={p}><td style={{fontWeight:500}}>{p}</td><td className={`mo ${pc>=0?'gr':'rd'}`}>{(pc*100).toFixed(4)}%</td><td className={`mo ${bn>=0?'gr':'rd'}`}>{(bn*100).toFixed(4)}%</td><td className="mo bl">{(sp*100).toFixed(4)}%</td><td className={`mo ${an>10?'gr':'am'}`}>{an.toFixed(1)}%</td></tr>})}
+  </tbody></table></div>
+}
+
+function App(){
+  const[rates,setRates]=useState([])
+  const[signals,setSignals]=useState([])
+  const[positions,setPositions]=useState([])
+  const[pnl,setPnl]=useState([])
+  const[scanning,setScanning]=useState(false)
+  const[auto,setAuto]=useState(false)
+  const[tab,setTab]=useState('signals')
+  const[lastScan,setLastScan]=useState(null)
+  const[exed,setExed]=useState(new Set())
+
+  const openP=positions.filter(p=>p.status==='open')
+  const totPnl=positions.reduce((s,p)=>s+p.pnl_usd,0)
+  const totFund=positions.reduce((s,p)=>s+p.funding_collected,0)
+  const totExp=openP.reduce((s,p)=>s+p.size_usd,0)
+
+  const doScan=useCallback(()=>{
+    setScanning(true)
+    setTimeout(()=>{const nr=mkRates();setRates(nr);setSignals(mkSignals(nr));setLastScan(new Date());setScanning(false)},500)
+  },[])
+
+  useEffect(()=>{setPnl(mkPnl(30));setPositions(mkPos());doScan()},[doScan])
+  useEffect(()=>{const iv=setInterval(doScan,30000);return()=>clearInterval(iv)},[doScan])
+
+  const exec=(id)=>{
+    setExed(p=>new Set([...p,id]))
+    const s=signals.find(x=>x.id===id);if(!s)return
+    setPositions(p=>[{id:'pos_'+Math.random().toString(36).slice(2,10),pair:s.pair,long_exchange:s.long_exchange,short_exchange:s.short_exchange,size_usd:s.sizing.recommended_size_usd,pnl_usd:0,funding_collected:0,total_return_pct:'0.00%',status:'open',opened_at:new Date().toISOString()},...p])
+  }
+
+  return <div>
+    <header className="hdr">
+      <div className="logo"><div className="logo-m">Pf</div><span className="logo-t">PaciFund</span><span className="logo-tag">Demo</span></div>
+      <div className="hdr-r">
+        <div className={scanning?'scan':''} style={{display:'flex',alignItems:'center',gap:6}}>
+          <div className="dot"/><span style={{fontSize:12,color:'var(--text-2)'}}>{scanning?'Scanning...':'Scan '+((lastScan||'').toLocaleTimeString?.()??'—')}</span>
+        </div>
+        <button className="btn" onClick={doScan}>Scan now</button>
+        <div style={{display:'flex',alignItems:'center',gap:7}}>
+          <span style={{fontSize:12,color:'var(--text-2)'}}>Auto</span>
+          <label className="tgl"><input type="checkbox" checked={auto} onChange={e=>setAuto(e.target.checked)}/><div className="tgl-t"/><div className="tgl-h"/></label>
+        </div>
+      </div>
+    </header>
+    <main className="mn">
+      <div className="g4">
+        <SC l="Total P&L" v={`$${totPnl.toFixed(2)}`} ch={`${((totPnl/10000)*100).toFixed(1)}%`} dir={totPnl>=0?'up':'dn'}/>
+        <SC l="Funding collected" v={`$${totFund.toFixed(2)}`} s="Cumulative income" ch={`+$${(totFund/30).toFixed(1)}/day`}/>
+        <SC l="Exposure" v={`$${totExp.toLocaleString()}`} s={`${((totExp/10000)*100).toFixed(1)}% of $10K`}/>
+        <SC l="Active signals" v={''+signals.length} s={`${openP.length} open positions`}/>
+      </div>
+      <div className="g2">
+        <div className="c">
+          <div className="ch"><span className="ct">P&L history (30d)</span>
+            <div style={{display:'flex',gap:14,fontSize:11}}>
+              <span style={{display:'flex',alignItems:'center',gap:4}}><span style={{width:8,height:3,background:'var(--green)',borderRadius:2,display:'inline-block'}}/>P&L</span>
+              <span style={{display:'flex',alignItems:'center',gap:4}}><span style={{width:8,height:3,background:'var(--blue)',borderRadius:2,display:'inline-block'}}/>Funding</span>
+            </div>
+          </div>
+          <PnlC d={pnl}/>
+        </div>
+        <div className="c">
+          <div className="ch"><span className="ct">Spread (bps)</span></div>
+          <SpC rates={rates}/><RT rates={rates}/>
+        </div>
+      </div>
+      <div className="c">
+        <div className="tbs">
+          <div className={`tb ${tab==='signals'?'a':''}`} onClick={()=>setTab('signals')}>Signals {signals.length>0&&<span className="bg bg-g" style={{marginLeft:5}}>{signals.length}</span>}</div>
+          <div className={`tb ${tab==='positions'?'a':''}`} onClick={()=>setTab('positions')}>Positions <span className="bg bg-b" style={{marginLeft:5}}>{openP.length} open</span></div>
+        </div>
+        {tab==='signals'&&(signals.filter(s=>!exed.has(s.id)).length===0
+          ?<div style={{color:'var(--text-2)',textAlign:'center',padding:28}}>No signals above threshold — waiting...</div>
+          :<div className="tw"><table><thead><tr><th>Pair</th><th>Direction</th><th>Spread</th><th>Est. profit/8h</th><th>Confidence</th><th>Size</th><th></th></tr></thead><tbody>
+            {signals.filter(s=>!exed.has(s.id)).map(s=><tr key={s.id}>
+              <td style={{fontWeight:500}}>{s.pair}</td>
+              <td><div style={{display:'flex',alignItems:'center',gap:3,fontSize:12}}><span className="gr">LONG</span> <EP ex={s.long_exchange}/> <span style={{color:'var(--text-2)',margin:'0 2px'}}>/</span> <span className="rd">SHORT</span> <EP ex={s.short_exchange}/></div></td>
+              <td className="mo bl">{s.spread_pct}</td>
+              <td className="mo gr">${s.estimated_profit_8h}</td>
+              <td><CB v={s.confidence}/></td>
+              <td className="mo">${s.sizing.recommended_size_usd} × {s.sizing.leverage}x</td>
+              <td><button className="btn btn-g btn-s" onClick={()=>exec(s.id)}>Execute</button></td>
+            </tr>)}
+          </tbody></table></div>
+        )}
+        {tab==='positions'&&<div className="tw"><table><thead><tr><th>Pair</th><th>Direction</th><th>Size</th><th>P&L</th><th>Funding</th><th>Return</th><th>Status</th></tr></thead><tbody>
+          {positions.map(p=><tr key={p.id}>
+            <td style={{fontWeight:500}}>{p.pair}</td>
+            <td><div style={{display:'flex',alignItems:'center',gap:3,fontSize:12}}><span className="gr">L</span> <EP ex={p.long_exchange}/> <span style={{color:'var(--text-2)'}}>/</span> <span className="rd">S</span> <EP ex={p.short_exchange}/></div></td>
+            <td className="mo">${p.size_usd.toLocaleString()}</td>
+            <td className={`mo ${p.pnl_usd>=0?'gr':'rd'}`}>{p.pnl_usd>=0?'+':''}${p.pnl_usd.toFixed(2)}</td>
+            <td className="mo gr">+${p.funding_collected.toFixed(2)}</td>
+            <td className={`mo ${parseFloat(p.total_return_pct)>=0?'gr':'rd'}`}>{p.total_return_pct}</td>
+            <td><span className={`bg ${p.status==='open'?'bg-g':'bg-b'}`}>{p.status}</span></td>
+          </tr>)}
+        </tbody></table></div>}
+      </div>
+    </main>
+  </div>
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App))
+</script>
+</body>
+</html>
