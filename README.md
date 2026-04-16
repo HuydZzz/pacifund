@@ -4,7 +4,7 @@
 
 <div align="center">
 
-**[Live Demo](https://huydzzz.github.io/pacifund/)** · **[Video Walkthrough](#demo-video)** · **[Architecture](#architecture)** · **[Hackathon Submission](#hackathon)**
+**[Live Demo](https://huydzzz.github.io/pacifund/)** 
 
 ![Version](https://img.shields.io/badge/version-2.0.0-00d68f)
 ![Track](https://img.shields.io/badge/track-Trading%20Bots-5b8def)
